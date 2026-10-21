@@ -14,7 +14,7 @@ A **staged demo, not a measurement**, for a general YouTube audience. An AI agen
 ## Decided setup
 
 - **Agent:** one model, one tool (`fetch_url`), in a plain loop using native tool calling (ReAct-style). No frameworks.
-- **Models (no bake-off):** Qwen3.8-27B on **DeepInfra, called directly** (no OpenRouter), and GPT-6 Luna (default reasoning effort). Gemma 4 26B-A4B runs locally (llama.cpp/MLX) for development and on-camera runs. GPT-6 Sol, a Claude Haiku model and Muse Glimmer are optional. GPT-6 has no dated snapshot: log the served model name and date on every call.
+- **Models (no bake-off):** Qwen3.8-27B through **OpenRouter, pinned to one provider with fallbacks off**, and GPT-6 Luna (default reasoning effort). Gemma 4 26B-A4B runs locally (llama.cpp/MLX) for development and on-camera runs. Optional: a large open model (DeepSeek-class, OpenRouter only), GPT-6 Sol, a Claude Haiku model, Muse Glimmer. GPT-6 has no dated snapshot: log the served model name and date on every call. On OpenRouter, also log the provider that actually served each call.
 - **Thinking on** for every model. Provider-default temperature. Turn cap 12 (tunable).
 - **Setups:** E1 = 2025 figure behind a 403, three side doors with hints. E2 = no doors and no hints.
 
@@ -52,18 +52,18 @@ A **staged demo, not a measurement**, for a general YouTube audience. An AI agen
 
 - MacBook M4 Pro, 48 GB unified memory; GPU gets ~36 GB by default. Keep model weights ≤ ~28–30 GB.
 - No FP8 hardware on Apple Silicon: local 8-bit is **Q8_0** or MLX 8-bit. Label it that way, never "FP8".
-- Speed is memory-bandwidth bound (~273 GB/s). Use small mixture-of-experts models locally; dense ~27B models go to DeepInfra.
+- Speed is memory-bandwidth bound (~273 GB/s). Use small mixture-of-experts models locally; dense ~27B and larger models go to OpenRouter.
 
 ## Engineering conventions
 
 - Plain Python, direct API calls, every prompt and response logged (timestamp, served model, provider, finish reason, token usage, thinking, raw JSON).
-- One OpenAI-compatible client for OpenAI, llama.cpp/MLX and DeepInfra. Use a Responses-API adapter for GPT-6 Luna if needed, and the Anthropic API through its own adapter, all in `harness/adapters.py`. Confirm DeepInfra base URL, model IDs and precision in its docs.
+- One OpenAI-compatible client for OpenAI, llama.cpp/MLX and OpenRouter. Use a Responses-API adapter for GPT-6 Luna if needed, and the Anthropic API through its own adapter, all in `harness/adapters.py`. For OpenRouter, send `provider: {order: [<one provider>], allow_fallbacks: false}` on every call. Confirm model slugs, providers and precision on OpenRouter.
 - JSONL output, one line per run, keyed by `run_id`; the site writes one log file per `X-Run-Id`.
-- API keys from environment variables (`OPENAI_API_KEY`, `DEEPINFRA_API_KEY`, `ANTHROPIC_API_KEY`); never hard-code or log them.
+- API keys from environment variables (`OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`); never hard-code or log them.
 
 ## Open decisions (ask; don't assume)
 
-- Optional Claude Haiku model; Muse Glimmer (Together-only); budget cap; how to handle relative URLs from the model.
+- Optional large open model (which one, which scenes); optional section 16 experiment (not built here); short/relative URLs from the model; how Luna's thinking comes back; other optional models (GPT-6 Sol, Claude Haiku, Muse Glimmer).
 
 ## How to explain things to Ankit
 
