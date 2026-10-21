@@ -1,0 +1,6 @@
+flask>=3.0
+requests>=2.31
+openai>=1.40
+pyyaml>=6.0
+statsmodels>=0.14
+pytest>=8.0
