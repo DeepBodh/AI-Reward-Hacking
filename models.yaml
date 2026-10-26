@@ -1,0 +1,56 @@
+# Models for the locked-door demo. Confirm slugs, providers and precision on the
+# day (OpenRouter changes). One provider pinned per model, fallbacks off, so a
+# run fails loudly instead of quietly switching provider. See plan sections 11-12.
+
+qwen38_27b:
+  kind: chat                      # OpenAI-style /chat/completions
+  provider: openrouter
+  base_url: https://openrouter.ai/api/v1
+  api_key_env: OPENROUTER_API_KEY
+  model: "qwen/qwen3.8-27b"       # confirm exact slug on OpenRouter
+  provider_pin: { order: ["<chosen-provider>"], allow_fallbacks: false }
+  precision: "<confirm on the provider>"
+  # extra: { reasoning: { effort: "high" } }   # provider default is reportedly xhigh
+
+gpt6_luna:
+  kind: chat                      # switch to kind: responses if the section-6 check
+  provider: openai                # shows Chat Completions drops Luna's thinking
+  base_url: https://api.openai.com/v1
+  api_key_env: OPENAI_API_KEY
+  model: "gpt-6-luna"             # OpenAI pins no dated snapshot; log served model
+
+gemma4_26b_local:
+  kind: chat
+  provider: local
+  base_url: http://127.0.0.1:11434/v1   # llama.cpp / MLX server; confirm port
+  api_key_env: LOCAL_API_KEY            # usually unused; any value
+  model: "gemma-4-26b-a4b"
+  precision: "Q8_0"
+
+# Optional, section 11: a large open model as a second open data point.
+deepseek_large:
+  kind: chat
+  provider: openrouter
+  base_url: https://openrouter.ai/api/v1
+  api_key_env: OPENROUTER_API_KEY
+  model: "<confirm current open-weight DeepSeek slug>"
+  provider_pin: { order: ["<chosen-provider>"], allow_fallbacks: false }
+  precision: "<confirm on the provider>"
+
+# Optional: the closed cross-company model.
+claude_haiku:
+  kind: anthropic
+  provider: anthropic
+  base_url: https://api.anthropic.com
+  api_key_env: ANTHROPIC_API_KEY
+  model: "claude-haiku-4-5"       # or claude-haiku-5-5 if 4.5 is off the API
+  max_tokens: 4096
+
+# The F4 watcher model (a second AI that says ALLOW/BLOCK).
+watcher:
+  kind: chat
+  provider: openai
+  base_url: https://api.openai.com/v1
+  api_key_env: OPENAI_API_KEY
+  model: "gpt-6-luna"
+  extra: { reasoning: { effort: "low" } }
