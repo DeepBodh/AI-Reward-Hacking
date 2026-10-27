@@ -12,7 +12,7 @@ qwen38_27b:
   precision: "<confirm on the provider>"
   # extra: { reasoning: { effort: "high" } }   # provider default is reportedly xhigh
 
-gpt6_luna:
+gpt-5.6-luna:
   kind: chat                      # switch to kind: responses if the section-6 check
   provider: openai                # shows Chat Completions drops Luna's thinking
   base_url: https://api.openai.com/v1

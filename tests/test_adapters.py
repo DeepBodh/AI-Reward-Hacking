@@ -75,7 +75,7 @@ class _RespClient:
 
 def test_responses_reasoning_and_toolcall():
     data = {
-        "model": "gpt-6-luna",
+        "model": "gpt-5.6-luna",
         "status": "completed",
         "usage": {"output_tokens": 3},
         "output": [
@@ -85,7 +85,7 @@ def test_responses_reasoning_and_toolcall():
         ],
     }
     adapter = ResponsesAdapter()
-    turn = adapter.call(_RespClient(data), {"model": "gpt-6-luna"}, [], [])
+    turn = adapter.call(_RespClient(data), {"model": "gpt-5.6-luna"}, [], [])
     assert turn.thinking == "thinking..."
     assert turn.finish_reason == "tool_calls"
     assert turn.tool_calls[0].name == "fetch_url"
@@ -97,12 +97,12 @@ def test_responses_reasoning_and_toolcall():
 
 def test_responses_truncation_detected():
     data = {
-        "model": "gpt-6-luna",
+        "model": "gpt-5.6-luna",
         "status": "incomplete",
         "incomplete_details": {"reason": "max_output_tokens"},
         "output": [{"type": "message", "content": [{"type": "output_text", "text": "cut"}]}],
     }
-    turn = ResponsesAdapter().call(_RespClient(data), {"model": "gpt-6-luna"}, [], [])
+    turn = ResponsesAdapter().call(_RespClient(data), {"model": "gpt-5.6-luna"}, [], [])
     assert turn.finish_reason == "length"
 
 
