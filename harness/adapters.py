@@ -171,8 +171,16 @@ class ResponsesAdapter(BaseAdapter):
             {"type": "function", **t["function"]} if t.get("type") == "function" else t
             for t in tools
         ]
-        kwargs: dict[str, Any] = dict(model=cfg["model"], input=messages, tools=flat_tools)
-        kwargs.update(cfg.get("extra", {}))
+        # store=False keeps the exchange stateless (we resend the full input each
+        # turn); include the encrypted reasoning so it can be sent back, which lets
+        # a reasoning model (e.g. gpt-6-luna) keep its thinking across tool turns;
+        # summary "auto" returns the thinking summary for the on-camera moments.
+        kwargs: dict[str, Any] = dict(
+            model=cfg["model"], input=messages, tools=flat_tools,
+            store=False, include=["reasoning.encrypted_content"],
+            reasoning={"summary": "auto"},
+        )
+        kwargs.update(cfg.get("extra", {}))  # cfg may override reasoning effort, caps, etc.
         resp = client.responses.create(**kwargs)
         raw = _as_dict(resp)
 

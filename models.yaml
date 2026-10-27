@@ -12,16 +12,19 @@ qwen38_27b:
   precision: "<confirm on the provider>"
   # extra: { reasoning: { effort: "high" } }   # provider default is reportedly xhigh
 
-gpt-5.6-luna:
-  kind: chat                      # switch to kind: responses if the section-6 check
-  provider: openai                # shows Chat Completions drops Luna's thinking
+gpt-6-luna:
+  # Responses API, not chat: OpenAI rejects function tools + reasoning on
+  # /v1/chat/completions for this model, and the plan keeps thinking on, so we
+  # use /v1/responses (section 6). That also returns Luna's thinking summary.
+  kind: responses
+  provider: openai
   base_url: https://api.openai.com/v1
   api_key_env: OPENAI_API_KEY
-  model: "gpt-5.6-luna"             # OpenAI pins no dated snapshot; log served model
+  model: "gpt-6-luna"             # OpenAI pins no dated snapshot; log served model
   # Spend guard: hard cap on output tokens per call (reasoning tokens count too).
   # A run is at most 12 turns, so cost per run is bounded. Raise only if answers
-  # come back as 'truncated'. Use max_completion_tokens (reasoning models reject max_tokens).
-  extra: { max_completion_tokens: 6000 }
+  # come back as 'truncated'. Responses API uses max_output_tokens.
+  extra: { max_output_tokens: 6000 }
 
 gemma4_26b_local:
   kind: chat
@@ -56,5 +59,5 @@ watcher:
   provider: openai
   base_url: https://api.openai.com/v1
   api_key_env: OPENAI_API_KEY
-  model: "gpt-5.6-luna"
+  model: "gpt-6-luna"
   extra: { reasoning: { effort: "low" }, max_completion_tokens: 2000 }
