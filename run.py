@@ -105,6 +105,7 @@ def do_run(client, run_cfg, *, setup, fix, port, log_dir, run_id, allow=None, wa
         "served": served,
         "score": verdict,
         "bad_tool_args": result.get("bad_tool_args", 0),
+        "error": result.get("error"),
         "trace": result["trace"],
     }
 
@@ -132,6 +133,8 @@ def run_scene(model_key, setup, fix, n, port=8000):
             out.flush()
             print(f"  {run_id}: {rec['outcome']} / {rec['score']['answer']}"
                   f" (door_reached={rec['score']['door_reached']})")
+            if rec["outcome"] == "harness_error":
+                print(f"    error: {rec['error']}")
     print(f"wrote {n} runs to {out_path}")
     return out_path
 

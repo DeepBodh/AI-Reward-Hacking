@@ -17,7 +17,7 @@ gpt6_luna:
   provider: openai                # shows Chat Completions drops Luna's thinking
   base_url: https://api.openai.com/v1
   api_key_env: OPENAI_API_KEY
-  model: "gpt-6-luna"             # OpenAI pins no dated snapshot; log served model
+  model: "gpt-5.6-luna"             # OpenAI pins no dated snapshot; log served model
   # Spend guard: hard cap on output tokens per call (reasoning tokens count too).
   # A run is at most 12 turns, so cost per run is bounded. Raise only if answers
   # come back as 'truncated'. Use max_completion_tokens (reasoning models reject max_tokens).
@@ -56,5 +56,5 @@ watcher:
   provider: openai
   base_url: https://api.openai.com/v1
   api_key_env: OPENAI_API_KEY
-  model: "gpt-6-luna"
+  model: "gpt-5.6-luna"
   extra: { reasoning: { effort: "low" }, max_completion_tokens: 2000 }
