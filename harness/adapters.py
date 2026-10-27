@@ -155,6 +155,23 @@ class ChatCompletionsAdapter(BaseAdapter):
         return {"role": "tool", "tool_call_id": tool_call.id, "content": content}
 
 
+#: fields the Responses API accepts back as input, per output-item type. It
+#: returns more than this (e.g. "status"), so resending raw items 400s.
+_RESENDABLE = {
+    "reasoning": ("type", "id", "summary", "encrypted_content"),
+    "function_call": ("type", "id", "call_id", "name", "arguments"),
+    "tool_call": ("type", "id", "call_id", "name", "arguments"),
+    "message": ("type", "id", "role", "content"),
+}
+
+
+def _clean_output_item(item: dict) -> dict:
+    keep = _RESENDABLE.get(item.get("type"))
+    if keep is None:
+        return {k: v for k, v in item.items() if k != "status"}
+    return {k: item[k] for k in keep if k in item}
+
+
 class ResponsesAdapter(BaseAdapter):
     """OpenAI Responses API, for reasoning models that need their thinking kept.
 
@@ -222,9 +239,11 @@ class ResponsesAdapter(BaseAdapter):
             served_model=raw.get("model") or cfg["model"],
             raw=raw,
         )
-        # Stash the reasoning items so history_entry can pass them back.
+        # Stash the output items so history_entry can pass them back next turn,
+        # cleaned to the fields the API accepts as input (it returns extras like
+        # "status" that it rejects on the way back in).
         turn.raw["_reasoning_items"] = reasoning_items
-        turn.raw["_output_items"] = raw.get("output", [])
+        turn.raw["_output_items"] = [_clean_output_item(it) for it in raw.get("output", [])]
         return turn
 
     def history_entry(self, turn: Turn) -> dict:
